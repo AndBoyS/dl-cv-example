@@ -1,0 +1,36 @@
+[tool.ruff]
+line-length = 120
+
+[tool.mypy]
+strict = true
+disallow_untyped_calls = false
+allow_redefinition = true
+
+[tool.poetry]
+name = "dl-cv-example"
+version = "0.1.0"
+description = ""
+authors = ["AndBoyS <andboyxd@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "~3.11"
+jupyter = "^1.0.0"
+pillow = "^10.3.0"
+numpy = "^1.26.4"
+pandas = "^2.2.2"
+seaborn = "^0.13.2"
+torch = "^2.2.2"
+torchvision = "^0.17.2"
+tensorboard = "^2.16.2"
+scikit-learn = "^1.4.2"
+mypy = "^1.9.0"
+ruff = "^0.3.7"
+tqdm = "^4.66.2"
+types-tqdm = "^4.66.0.20240106"
+torch-tb-profiler = "^0.4.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
