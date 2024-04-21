@@ -58,7 +58,7 @@ class Model(nn.Module):
         self.device = device
         self.criterion = criterion
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:  # type: ignore[reportRedeclaration]
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.body(x)
         x: torch.Tensor = self.fc(x)
         return x
