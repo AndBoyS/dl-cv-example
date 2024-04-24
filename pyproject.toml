@@ -33,6 +33,7 @@ ruff = "^0.3.7"
 tqdm = "^4.66.2"
 types-tqdm = "^4.66.0.20240106"
 torch-tb-profiler = "^0.4.3"
+dvc = "^3.50.0"
 
 [build-system]
 requires = ["poetry-core"]
