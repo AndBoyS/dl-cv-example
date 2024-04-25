@@ -5,24 +5,30 @@ import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard.writer import SummaryWriter
-from tqdm.notebook import tqdm
+from tqdm import tqdm
+from dvclive import Live  # type: ignore[attr-defined]
 
 
 class LocalModelType(Protocol):
     device: torch.device
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor: ...
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        ...
 
-    def compute_loss(self, batch: tuple[torch.Tensor, torch.Tensor]) -> torch.Tensor: ...
+    def compute_loss(self, batch: tuple[torch.Tensor, torch.Tensor]) -> torch.Tensor:
+        ...
 
-    def predict(self, x: torch.Tensor) -> torch.Tensor: ...
+    def predict(self, x: torch.Tensor) -> torch.Tensor:
+        ...
 
-    def train(self, mode: bool = True) -> Self: ...
+    def train(self, mode: bool = True) -> Self:
+        ...
 
-    def eval(self) -> Self: ...
+    def eval(self) -> Self:
+        ...
 
-    def to(self, device: torch.device) -> Self: ...
+    def to(self, device: torch.device) -> Self:
+        ...
 
 
 class Model(nn.Module):
@@ -85,7 +91,7 @@ class Trainer:
         optimizer: torch.optim.Optimizer,
         train_loader: DataLoader,  # type: ignore[type-arg]
         val_loader: DataLoader | None = None,  # type: ignore[type-arg]
-        writer: SummaryWriter | None = None,
+        logger: Live | None = None,
         model_path: str | Path | None = None,
         device: torch.device = torch.device("cpu"),
     ) -> None:
@@ -95,7 +101,7 @@ class Trainer:
 
         self.train_loader = train_loader
         self.val_loader = val_loader
-        self.writer = writer
+        self.logger = logger
         self.model_path = model_path
 
         self.device = device
@@ -116,26 +122,26 @@ class Trainer:
                 self.optimizer.step()
 
                 epoch_losses.append(loss.item())
-                if self.writer is not None:
-                    self.writer.add_scalar("train_loss_batch", loss, batch_step)
+                if self.logger is not None:
+                    self.logger.log_metric("train_loss_batch", loss.item())
 
                 batch_step += 1
 
-            if self.writer is None:
+            if self.logger is None:
                 continue
 
-            epoch_loss = np.mean(epoch_losses)
-            self.writer.add_scalar("train_loss", epoch_loss, epoch)
+            epoch_loss = float(np.mean(epoch_losses))
+            self.logger.log_metric("train_loss", epoch_loss)
 
             self.model.eval()
             train_acc = evaluate_loader(self.train_loader, self.model)["acc"]
-            self.writer.add_scalar("train_acc", train_acc, epoch)
+            self.logger.log_metric("train_acc", train_acc)
 
             if self.val_loader is None:
                 continue
 
             val_acc = evaluate_loader(self.val_loader, self.model)["acc"]
-            self.writer.add_scalar("val_acc", val_acc, epoch)
+            self.logger.log_metric("val_acc", val_acc)
 
             if val_acc > best_val_acc and self.model_path is not None:
                 best_val_acc = val_acc
