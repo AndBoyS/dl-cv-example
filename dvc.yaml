@@ -1,0 +1,34 @@
+stages:
+  train:
+    cmd: python src/scripts/train.py
+    params:
+    - src/scripts/params.py:
+      - DataConfig.seed
+      - DataConfig.train_split
+      - DataConfig.val_split
+      - DataConfig.test_split
+      - TrainConfig.batch_size
+      - TrainConfig.lr
+      - TrainConfig.num_epochs
+    outs:
+    - models/model.pth
+  evaluate:
+    cmd: python src/scripts/evaluate.py
+    deps:
+    - models/model.pth
+metrics:
+- dvclive/metrics.json
+plots:
+- train_loss_batch:
+    template: simple
+    x: step
+    y:
+      dvclive/plots/metrics/train_loss_batch.tsv: train_loss_batch
+- train_val_acc:
+    template: simple
+    x: step
+    y:
+      dvclive/plots/metrics/train_acc.tsv: train_acc
+      dvclive/plots/metrics/val_acc.tsv: val_acc
+- dvclive/plots/metrics:
+    x: step
